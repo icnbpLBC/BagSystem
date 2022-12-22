@@ -9,8 +9,8 @@ using System.Security.Cryptography;
 
 public class ABUtil : Editor
 {
-    public static string path = "Assets/ArtRes/AB";
-    public static string remotePath = "C:/Users/Liu/remoteAddr/";
+    public static string path = "Assets/ArtRes/PC";
+    public static string remotePath = "D:/Test/remoteAddr/";
 
     [MenuItem("Tools/CreateAssetBundle")]
     public static void CreatePCAB()
@@ -19,7 +19,7 @@ public class ABUtil : Editor
             Directory.CreateDirectory(path);
         }
         BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
-        UnityEngine.Debug.Log("win finish create ab");
+        AssetDatabase.Refresh();
     }
 
     [MenuItem("Tools/CreateABUpdateAndVersionFile")]
@@ -44,6 +44,7 @@ public class ABUtil : Editor
         ABVersion = "game" + "_" + System.DateTime.Now.ToString("d");
         File.WriteAllText(path + "/update.txt", ABInfo);
         File.WriteAllText(path + "/version.txt", ABVersion);
+        AssetDatabase.Refresh();
     }
 
     [MenuItem("Tools/UploadABAndUpdateAndVersionFile")]
@@ -52,9 +53,10 @@ public class ABUtil : Editor
         DirectoryInfo directory = Directory.CreateDirectory(path);
         FileInfo[] fileInfos = directory.GetFiles();
 
-        foreach(FileInfo info in fileInfos)
-        {
-            if(info.Extension == "" || info.Extension == ".txt")
+        foreach (FileInfo info in fileInfos)
+        { 
+        
+            if (info.Extension == "" || info.Extension == ".txt")
             {
                 UpLoadFile(info.FullName, info.Name);
             }
@@ -81,13 +83,18 @@ public class ABUtil : Editor
                 string fileName = assetPath.Substring(assetPath.LastIndexOf('/'));
                 AssetDatabase.CopyAsset(assetPath, "Assets/StreamingAssets" + fileName);
                 FileInfo fileInfo = new FileInfo(Application.streamingAssetsPath + fileName);
-                ABInfo += fileInfo.Name + "_" + BuildFileMd5(Application.streamingAssetsPath + fileName);
-                ABInfo += " ";
+                if(fileInfo.Extension == "") // manifest文件不记录
+                {
+                    ABInfo += fileInfo.Name + "_" + BuildFileMd5(Application.streamingAssetsPath + fileName);
+                    ABInfo += " ";
+                }
+                
             }
             ABInfo = ABInfo.Substring(0, ABInfo.Length - 1);
             ABVersion = "game" + "_" + System.DateTime.Now.ToString("d");
             File.WriteAllText(Application.streamingAssetsPath + "/update.txt", ABInfo);
             File.WriteAllText(Application.streamingAssetsPath + "/version.txt", ABVersion);
+            AssetDatabase.Refresh();
         }
     }
 

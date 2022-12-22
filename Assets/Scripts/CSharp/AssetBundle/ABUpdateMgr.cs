@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class ABUpdateMgr : MonoBehaviour
+public class ABUpdateMgr : SingleAutoMono<ABUpdateMgr>
 {
   
-    public static string remotePath = "C:/Users/Liu/remoteAddr/";
+    public static string remotePath = "D:/Test/remoteAddr/";
     // key为包名 value为MD5码
     // 更新文件信息 分远程和本地
     private Dictionary<string, string> remoteABInfo = new Dictionary<string, string>();
@@ -18,25 +18,6 @@ public class ABUpdateMgr : MonoBehaviour
     private string localVersion;
     private string remoteVersion;
 
-    private static ABUpdateMgr instance;
-    
-    public static ABUpdateMgr Instance
-    {
-        get
-        {
-            if(instance == null)
-            {
-                GameObject obj = new GameObject("ABUpdateMgr");
-                instance = obj.AddComponent<ABUpdateMgr>();
-            }
-            return instance;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        instance = null;
-    }
 
     public void CheckABUpdate()
     {   
@@ -148,6 +129,7 @@ public class ABUpdateMgr : MonoBehaviour
         // 先下载到本地 并用临时文件保存
         DownLoadRemoteFile("update.txt", Application.persistentDataPath + "/update_temp.txt");
 
+
         // 读取远程更新文件信息
         ReadABInfoInDict(Application.persistentDataPath + "/update_temp.txt", remoteABInfo);
     }
@@ -164,7 +146,7 @@ public class ABUpdateMgr : MonoBehaviour
         {
             FileStream tar = new FileStream( localPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
 
-            using (FileStream src = File.OpenRead(remotePath + fileName))
+            using (FileStream src = File.OpenRead(remotePath +  fileName))
             {
                 byte[] bytes = new byte[2048];
                 int length = src.Read(bytes, 0, bytes.Length);
@@ -189,7 +171,7 @@ public class ABUpdateMgr : MonoBehaviour
 
     public void GetRemoteVersion()
     {
-        string info = File.ReadAllText("C:/Users/Liu/remoteAddr/version.txt");
+        string info = File.ReadAllText(remotePath + "version.txt");
         remoteVersion =  info.Split('_')[1];
       
     }
