@@ -8,13 +8,14 @@ public class ABUpdateMgr : SingleAutoMono<ABUpdateMgr>
 {
   
     public static string remotePath = "D:/Test/remoteAddr/";
-    // key为包名 value为MD5码
+    // key为AB包名 value为MD5码
     // 更新文件信息 分远程和本地
     private Dictionary<string, string> remoteABInfo = new Dictionary<string, string>();
     private Dictionary<string, string> localABInfo = new Dictionary<string, string>();
     // 下载列表
     private List<string> downLoadList = new List<string>();
 
+    // 远程版本号和本地版本号
     private string localVersion;
     private string remoteVersion;
 

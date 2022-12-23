@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using XLua;
+[LuaCallCSharp]
 public class ABMgr : SingleAutoMono<ABMgr>
 {
     private Dictionary<string, AssetBundle> cache = new Dictionary<string, AssetBundle>();
@@ -44,7 +45,7 @@ public class ABMgr : SingleAutoMono<ABMgr>
     }
 
     // º”‘ÿ◊ ‘¥
-    public Object LoadRes(string abName, string resName,System.Type type, Transform parent = null)
+    public Object LoadRes(string abName, string resName, System.Type type, Transform parent = null)
     {
         LoadAB(abName);
         Object obj = cache[abName].LoadAsset(resName, type);
