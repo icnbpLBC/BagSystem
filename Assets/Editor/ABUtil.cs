@@ -8,10 +8,13 @@ using Object = UnityEngine.Object;
 using System.Security.Cryptography;
 
 public class ABUtil : Editor
-{
+{   
+    // 打包输出目录
     public static string path = "Assets/ArtRes/PC";
+    // 模拟远程服务器地址
     public static string remotePath = "D:/Test/remoteAddr/";
 
+    // 打包
     [MenuItem("Tools/CreateAssetBundle")]
     public static void CreatePCAB()
     {
@@ -22,6 +25,7 @@ public class ABUtil : Editor
         AssetDatabase.Refresh();
     }
 
+    // 创建update.txt 和 version.txt
     [MenuItem("Tools/CreateABUpdateAndVersionFile")]
     public static void CreateABUpdateAndVersionFile()
     {
@@ -47,6 +51,7 @@ public class ABUtil : Editor
         AssetDatabase.Refresh();
     }
 
+    // 上传AB包、update.txt和version.txt到远程地址
     [MenuItem("Tools/UploadABAndUpdateAndVersionFile")]
     public static void UploadABAndUpdateAndVersionFile()
     {
@@ -63,8 +68,9 @@ public class ABUtil : Editor
         }
     }
 
-    [MenuItem("Tools/MoveABToStreamingAssets")]
-    public static void MoveABToStreamingAssets()
+    // 移动选中的AB包到只读目录中 同时生成version.txt和update.txt
+    [MenuItem("Tools/MoveSelectedABToStreamingAssets")]
+    public static void MoveSelectedABToStreamingAssets()
     {
         // 获取选中的资产
         Object[] selectedAsset = Selection.GetFiltered(typeof(object), SelectionMode.DeepAssets);

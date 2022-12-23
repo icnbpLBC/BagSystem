@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Items
+  serializedVersion: 2
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: eceab27e05843f64baf382ed98260f9b, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 50dcb832fb53b6d47adb708c4f36e8de, type: 3}
+  - {fileID: 21300000, guid: c3c2f0626f169114da0732e13460e189, type: 3}
+  - {fileID: 21300000, guid: 7aeff964ab0db6d44bcf4c0d2bd81bf0, type: 3}
+  - {fileID: 21300000, guid: f62d061508551a04896509a6289bbdc4, type: 3}
+  - {fileID: 21300000, guid: ac28ae67a41513943ab27cce717c1a82, type: 3}
+  - {fileID: 21300000, guid: 4c741d87b29f28045b3af6574ea15a15, type: 3}
+  - {fileID: 21300000, guid: 6f53770864291f34f8918f2c4a85f4bb, type: 3}
+  - {fileID: 21300000, guid: 22e81a186ffc59d4d8fe61034693ccb8, type: 3}
+  - {fileID: 21300000, guid: fbd463f8733120e439961480dfaf56c4, type: 3}
+  - {fileID: 21300000, guid: e282bb696fcac8640a3eba8ffa977b29, type: 3}
+  - {fileID: 21300000, guid: 27e5a9c957c05d042a7f24cac7015c7a, type: 3}
+  - {fileID: 21300000, guid: 78f7851a51acea84ca3b5f418b9f9cc3, type: 3}
+  - {fileID: 21300000, guid: fd31661a6229a3344a17a0f1129cb8d9, type: 3}
+  - {fileID: 21300000, guid: 890a560bf656992469daea7b507a7708, type: 3}
+  - {fileID: 21300000, guid: 5fd6ad1c8ea1b914cb2c5c32a0c93b4d, type: 3}
+  - {fileID: 21300000, guid: d5bc114c5da56b94184a5404755a063c, type: 3}
+  - {fileID: 21300000, guid: d55c775c198ebf748a69aea555326a71, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - GemIcon7
+  - GemIcon4
+  - EquipIcon5
+  - EquipIcon2
+  - EquipIcon3
+  - EquipIcon6
+  - EquipIcon4
+  - ItemIcon2
+  - GemIcon6
+  - ItemIcon3
+  - GemIcon5
+  - GemIcon2
+  - GemIcon1
+  - ItemIcon1
+  - GemIcon3
+  - EquipIcon1
+  - ItemIcon4
+  m_RenderDataMap: {}
+  m_Tag: Items
+  m_IsVariant: 0
+  m_IsPlaceholder: 0
