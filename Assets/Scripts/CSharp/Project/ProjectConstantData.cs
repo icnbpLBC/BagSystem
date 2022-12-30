@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using XLua;
 
 // xLua会生成这个类型的适配代码
@@ -27,5 +29,12 @@ public static class ProjectConstantData
         "ItemIcon2",
         "ItemIcon3",
         "ItemIcon4",
+    };
+
+    [CSharpCallLua]
+    public static List<Type> CSharpCallLua = new List<Type>()
+    {
+         typeof(UnityAction),
+        typeof(UnityAction<Vector2>)
     };
 }
