@@ -12,6 +12,7 @@ function MainPanel:Init()
         self.panelObj = CS.ABMgr.Instance:LoadRes("prefabs", "MainPanel", typeof(CS.UnityEngine.GameObject), Canvas);
         self.charaBtn = self.panelObj.transform:Find("CharaBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
         self.isInit = false
+        BagManager:Init()
     end
     self:Show()
 end
@@ -36,5 +37,5 @@ function MainPanel:DelEvent()
 end
 
 function MainPanel:OnCharaBtnClick()
-    BagPanel:Init()
+    BagManager.model:InitBagPanel()
 end

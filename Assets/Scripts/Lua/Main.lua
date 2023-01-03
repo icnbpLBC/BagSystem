@@ -1,10 +1,12 @@
 -- 引用字符串分割和Json工具
 require("SplitTools")
+
 Json = require("JsonUtility")
 
 -- 基类
-require("Object");
-
+require("base/Object");
+require("BagModel")
+require("BagManager")
 -- 画布 便于后续挂载
 Canvas = CS.UnityEngine.GameObject.Find("Canvas").transform
 

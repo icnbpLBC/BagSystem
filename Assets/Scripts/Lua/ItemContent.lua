@@ -84,15 +84,15 @@ end
 -- 物品选中框 如果已被选中 则框消失  如果未被选中 则被选中的框消失 自己的框出现
 function ItemContent:OnItemSelectedClick()
     if self.itemSelectObj.activeSelf then
-        BagPanel.selectedRow = nil
+        BagManager:SetSelectedRowAndColumn(nil, nil)
     end
     self:ChangeSelectedState()
     if self.itemSelectObj.activeSelf then
-        if BagPanel.selectedRow ~= nil then
-            BagPanel.itemDatas[BagPanel.selectedRow][BagPanel.selectedColumn]:ChangeSelectedState()
+        if BagManager:GetSelectedRowAndColumn().row ~= nil then
+            
+            BagManager:ChangeSelectedStatus()
         end
-        BagPanel.selectedRow = self.row
-        BagPanel.selectedColumn = self.column
+        BagManager:SetSelectedRowAndColumn(self.row, self.column)
     end
     
 end
