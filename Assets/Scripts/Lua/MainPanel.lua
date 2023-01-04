@@ -1,22 +1,30 @@
-MainPanel = Object:subClass("MainPanel")
-
+-- MainPanel = Object:subClass("MainPanel")
+MainPanel = MainPanel or BaseClass(BasePanel)
 -- 主面板封装的属性
-MainPanel.panelObj = nil
-MainPanel.charaBtn = nil
-MainPanel.isInit = false
+-- MainPanel.panelObj = nil
+-- MainPanel.charaBtn = nil
+-- MainPanel.isInit = false
 
 
 -- 对外接口
-function MainPanel:Init()
-    if MainPanel.isInit == false then
-        self.panelObj = CS.ABMgr.Instance:LoadRes("prefabs", "MainPanel", typeof(CS.UnityEngine.GameObject), Canvas);
+function MainPanel:__init()
+    local cb = function (asset)
+        self:Instantiate(asset, Canvas)
+        -- 确保资源加载完成才进行下部动作
         self.charaBtn = self.panelObj.transform:Find("CharaBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        self.isInit = false
-        BagManager:Init()
+        BagManager.New()
+        self:Show()
     end
-    self:Show()
+    CS.ABMgr.Instance:LoadRes("prefabs", "MainPanel", typeof(CS.UnityEngine.GameObject), cb, 1);
 end
 
+
+function MainPanel:Instantiate(asset, parent)
+    self.panelObj = CS.UnityEngine.GameObject.Instantiate(asset, parent)
+    -- 增加引用计数
+    CS.ABMgr.Instance:AddReferenceCount("prefabs", "MainPanel")
+    
+end
 function MainPanel:Show()
     self:AddEvent()
 end
@@ -37,5 +45,5 @@ function MainPanel:DelEvent()
 end
 
 function MainPanel:OnCharaBtnClick()
-    BagManager.model:InitBagPanel()
+    BagManager.Instance.model:InitBagPanel()
 end

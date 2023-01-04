@@ -1,48 +1,76 @@
 -- 继承于Object
-BagPanel = Object:subClass("BagPanel")
+-- BagPanel = Object:subClass("BagPanel")
+BagPanel = BagPanel or BaseClass(BasePanel)
+-- -- 背包面板类特有属性
+-- BagPanel.isInit = false
+-- BagPanel.panelObj = nil
+-- BagPanel.cloBtn = nil
+-- -- 物品面板位置 便于后续物品实例化时设置父对象
+-- BagPanel.scrollContentTrans = nil
 
--- 背包面板类特有属性
-BagPanel.isInit = false
-BagPanel.panelObj = nil
-BagPanel.cloBtn = nil
--- 物品面板位置 便于后续物品实例化时设置父对象
-BagPanel.scrollContentTrans = nil
+-- -- 图集对象
+-- BagPanel.spriteAtlasObj = nil
 
--- 图集对象
-BagPanel.spriteAtlasObj = nil
-
--- 各按钮组件
-BagPanel.allItemBtn = nil
-BagPanel.equipCateBtn = nil
-BagPanel.itemCateBtn = nil
-BagPanel.gemCateBtn = nil
+-- -- 各按钮组件
+-- BagPanel.allItemBtn = nil
+-- BagPanel.equipCateBtn = nil
+-- BagPanel.itemCateBtn = nil
+-- BagPanel.gemCateBtn = nil
 
 -- 初始化过程
-function BagPanel:Init()
-    if (self.isInit == false) then
-        self.panelObj = CS.ABMgr.Instance:LoadRes("prefabs", "BagPanel", typeof(CS.UnityEngine.GameObject), Canvas)
+-- function BagPanel:Init()
+--     if (self.isInit == false) then
+--         self.panelObj = CS.ABMgr.Instance:LoadRes("prefabs", "BagPanel", typeof(CS.UnityEngine.GameObject), Canvas)
+--         self.cloBtn = self.panelObj.transform:Find("Bg/CloBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+--         self.allItemBtn = self.panelObj.transform:Find("Bg/AllItemBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+--         self.equipCateBtn = self.panelObj.transform:Find("Bg/EquipCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+--         self.itemCateBtn = self.panelObj.transform:Find("Bg/ItemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+--         self.gemCateBtn = self.panelObj.transform:Find("Bg/GemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+--         self.spriteAtlasObj = CS.ABMgr.Instance:LoadRes("imgs", "Items", typeof(CS.UnityEngine.U2D.SpriteAtlas))
+--         self.scrollContentTrans = self.panelObj.transform:Find("Bg/ItemPanel/ScrollView/Viewport/Content")
+
+
+--         self.isInit = true
+--         BagManager.Instance:LoadItemContents()
+--         self:InitBag()
+--         self:OnAllItemBtnClick()
+--     end
+--     self:Show()
+-- end
+
+function BagPanel:__init()
+    local cb = function (asset)
+        self:Instantiate(asset, Canvas)
+        -- 确保加载完
         self.cloBtn = self.panelObj.transform:Find("Bg/CloBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
         self.allItemBtn = self.panelObj.transform:Find("Bg/AllItemBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
         self.equipCateBtn = self.panelObj.transform:Find("Bg/EquipCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
         self.itemCateBtn = self.panelObj.transform:Find("Bg/ItemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
         self.gemCateBtn = self.panelObj.transform:Find("Bg/GemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        self.spriteAtlasObj = CS.ABMgr.Instance:LoadRes("imgs", "Items", typeof(CS.UnityEngine.U2D.SpriteAtlas))
         self.scrollContentTrans = self.panelObj.transform:Find("Bg/ItemPanel/ScrollView/Viewport/Content")
-
-
-        self.isInit = true
-        BagManager:LoadItemContents()
         self:InitBag()
-        self:OnAllItemBtnClick()
+        self:Show()
     end
-    self:Show()
+    CS.ABMgr.Instance:LoadRes("prefabs", "BagPanel", typeof(CS.UnityEngine.GameObject), cb, 1)
+    local cb2 = function (asset)
+        self.spriteAtlasObj = asset
+        CS.ABMgr.Instance:AddReferenceCount("imgs", "Items")
+    end
+    CS.ABMgr.Instance:LoadRes("imgs", "Items", typeof(CS.UnityEngine.U2D.SpriteAtlas), cb2, 1)
+    
+end
 
+-- 面板GO依据资源实例化
+function BagPanel:Instantiate(asset, parent)
+    self.panelObj = CS.UnityEngine.GameObject.Instantiate(asset, parent)
+    -- 增加引用计数
+    CS.ABMgr.Instance:AddReferenceCount("prefabs", "BagPanel")
 end
 
 function BagPanel:InitBag()
     self.scrollContentTrans.anchorMin = CS.UnityEngine.Vector2(0, 0)
     self.scrollContentTrans.anchorMax = CS.UnityEngine.Vector2(0, 1)
-    self.scrollContentTrans:GetComponent(typeof(CS.UnityEngine.RectTransform)).sizeDelta = CS.UnityEngine.Vector2(BagManager:GetContentsSize(), 0)
+    self.scrollContentTrans:GetComponent(typeof(CS.UnityEngine.RectTransform)).sizeDelta = CS.UnityEngine.Vector2(BagManager.Instance:GetContentsSize(), 0)
 
 end
 
@@ -98,7 +126,7 @@ function BagPanel:ClearCateClick()
 end
 
 function BagPanel:OnScrollMoveWidth(vec2)
-    BagManager:ScrollMove(self.scrollContentTrans.anchoredPosition.x)
+    BagManager.Instance:ScrollMove(self.scrollContentTrans.anchoredPosition.x)
 end
 
 function BagPanel:OnAllItemBtnClick()
@@ -106,51 +134,51 @@ function BagPanel:OnAllItemBtnClick()
     self:ClearCateClick()
     -- 修改状态
     -- self.categoryStatus = 0
-    BagManager:UpdateCateStatus(0)
+    BagManager.Instance:UpdateCateStatus(0)
     -- 更改颜色为选中
     self.panelObj.transform:Find("Bg/AllItemBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- 显示物品
     -- self:ShowCateData()
     -- 还原content位置
-    BagManager:ShowCateData()
+    BagManager.Instance:ShowCateData()
     self.scrollContentTrans.anchoredPosition = CS.UnityEngine.Vector2(0,0)
 end
 
 function BagPanel:OnEquipCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 1
-    BagManager:UpdateCateStatus(1)
+    BagManager.Instance:UpdateCateStatus(1)
     self.panelObj.transform:Find("Bg/EquipCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     --self:ShowCateData()
     -- 还原content位置
     self.scrollContentTrans.anchoredPosition = CS.UnityEngine.Vector2(0,0)
-    BagManager:ShowCateData()
+    BagManager.Instance:ShowCateData()
 end
 
 function BagPanel:OnItemCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 2
-    BagManager:UpdateCateStatus(2)
+    BagManager.Instance:UpdateCateStatus(2)
     self.panelObj.transform:Find("Bg/ItemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- self:ShowCateData()
     -- 还原content位置
     self.scrollContentTrans.anchoredPosition = CS.UnityEngine.Vector2(0,0)
-    BagManager:ShowCateData()
+    BagManager.Instance:ShowCateData()
 end
 
 -- todo content大小与对应分类大小匹配
 function BagPanel:OnGemCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 3
-    BagManager:UpdateCateStatus(3)
+    BagManager.Instance:UpdateCateStatus(3)
     self.panelObj.transform:Find("Bg/GemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- self:ShowCateData()
     self.scrollContentTrans.anchoredPosition = CS.UnityEngine.Vector2(0,0)
-    BagManager:ShowCateData()
+    BagManager.Instance:ShowCateData()
 end
 
 

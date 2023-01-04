@@ -1,11 +1,16 @@
 -- 继承于Object
-BagManager = Object:subClass("BagManager")
-BagManager.model = nil
+-- BagManager = Object:subClass("BagManager")
+BagManager = BagManager or BaseClass(BaseManager)
 
 
-function BagManager:Init()
-    BagModel:Init()
-    self.model = BagModel
+-- function BagManager:Init()
+--     BagModel:Init()
+--     self.model = BagModel
+-- end
+
+function BagManager:__init()
+    self.model = BagModel.New()
+    BagManager.Instance = self
 end
 
 -- 左滑需比较位置
@@ -98,7 +103,6 @@ end
 
 -- 加载物品内容
 function BagManager:LoadItemContents()
-    print(#PlayerData.itemData)
     -- 分类存储用户数据
     for i, v in pairs(PlayerData.itemData) do
         if v.type == 'equip' then
@@ -232,4 +236,14 @@ end
 -- 改变被选中物体的状态
 function BagManager:ChangeSelectedStatus()
     self.model.itemDatas[self.model.selectedRow][self.model.selectedColumn]:ChangeSelectedState()
+end
+
+-- 获取content的transform
+function BagManager:GetScrollContentTrans()
+    return self.model.panel.scrollContentTrans
+end
+
+-- 获取图集中的图像
+function BagManager:GetBagSpriteByName(name)
+    return self.model.panel.spriteAtlasObj:GetSprite(name)
 end

@@ -21,9 +21,12 @@ namespace XLua.CSObjectWrap
         {
 			ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
 			System.Type type = typeof(ABMgr);
-			Utils.BeginObjectRegister(type, L, translator, 0, 3, 0, 0);
+			Utils.BeginObjectRegister(type, L, translator, 0, 6, 0, 0);
 			
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "AddReferenceCount", _m_AddReferenceCount);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "DecreaseReferenceCount", _m_DecreaseReferenceCount);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadRes", _m_LoadRes);
+			Utils.RegisterFunc(L, Utils.METHOD_IDX, "LoadResAsync", _m_LoadResAsync);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UnLoad", _m_UnLoad);
 			Utils.RegisterFunc(L, Utils.METHOD_IDX, "UnLoadAll", _m_UnLoadAll);
 			
@@ -75,6 +78,64 @@ namespace XLua.CSObjectWrap
         
         
         [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_AddReferenceCount(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                ABMgr gen_to_be_invoked = (ABMgr)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _abName = LuaAPI.lua_tostring(L, 2);
+                    string _resName = LuaAPI.lua_tostring(L, 3);
+                    
+                    gen_to_be_invoked.AddReferenceCount( _abName, _resName );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_DecreaseReferenceCount(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                ABMgr gen_to_be_invoked = (ABMgr)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _abName = LuaAPI.lua_tostring(L, 2);
+                    string _resName = LuaAPI.lua_tostring(L, 3);
+                    
+                    gen_to_be_invoked.DecreaseReferenceCount( _abName, _resName );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
+            
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
         static int _m_LoadRes(RealStatePtr L)
         {
 		    try {
@@ -85,41 +146,55 @@ namespace XLua.CSObjectWrap
                 ABMgr gen_to_be_invoked = (ABMgr)translator.FastGetCSObj(L, 1);
             
             
-			    int gen_param_count = LuaAPI.lua_gettop(L);
-            
-                if(gen_param_count == 5&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Type>(L, 4)&& translator.Assignable<UnityEngine.Transform>(L, 5)) 
+                
                 {
                     string _abName = LuaAPI.lua_tostring(L, 2);
                     string _resName = LuaAPI.lua_tostring(L, 3);
                     System.Type _type = (System.Type)translator.GetObject(L, 4, typeof(System.Type));
-                    UnityEngine.Transform _parent = (UnityEngine.Transform)translator.GetObject(L, 5, typeof(UnityEngine.Transform));
+                    System.Action<UnityEngine.Object> _finishedCB = translator.GetDelegate<System.Action<UnityEngine.Object>>(L, 5);
+                    int _mode = LuaAPI.xlua_tointeger(L, 6);
                     
-                        var gen_ret = gen_to_be_invoked.LoadRes( _abName, _resName, _type, _parent );
-                        translator.Push(L, gen_ret);
-                    
-                    
-                    
-                    return 1;
-                }
-                if(gen_param_count == 4&& (LuaAPI.lua_isnil(L, 2) || LuaAPI.lua_type(L, 2) == LuaTypes.LUA_TSTRING)&& (LuaAPI.lua_isnil(L, 3) || LuaAPI.lua_type(L, 3) == LuaTypes.LUA_TSTRING)&& translator.Assignable<System.Type>(L, 4)) 
-                {
-                    string _abName = LuaAPI.lua_tostring(L, 2);
-                    string _resName = LuaAPI.lua_tostring(L, 3);
-                    System.Type _type = (System.Type)translator.GetObject(L, 4, typeof(System.Type));
-                    
-                        var gen_ret = gen_to_be_invoked.LoadRes( _abName, _resName, _type );
-                        translator.Push(L, gen_ret);
+                    gen_to_be_invoked.LoadRes( _abName, _resName, _type, _finishedCB, _mode );
                     
                     
                     
-                    return 1;
+                    return 0;
                 }
                 
             } catch(System.Exception gen_e) {
                 return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
             }
             
-            return LuaAPI.luaL_error(L, "invalid arguments to ABMgr.LoadRes!");
+        }
+        
+        [MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+        static int _m_LoadResAsync(RealStatePtr L)
+        {
+		    try {
+            
+                ObjectTranslator translator = ObjectTranslatorPool.Instance.Find(L);
+            
+            
+                ABMgr gen_to_be_invoked = (ABMgr)translator.FastGetCSObj(L, 1);
+            
+            
+                
+                {
+                    string _abName = LuaAPI.lua_tostring(L, 2);
+                    string _resName = LuaAPI.lua_tostring(L, 3);
+                    System.Type _type = (System.Type)translator.GetObject(L, 4, typeof(System.Type));
+                    System.Action<UnityEngine.Object> _finishedCB = translator.GetDelegate<System.Action<UnityEngine.Object>>(L, 5);
+                    
+                    gen_to_be_invoked.LoadResAsync( _abName, _resName, _type, _finishedCB );
+                    
+                    
+                    
+                    return 0;
+                }
+                
+            } catch(System.Exception gen_e) {
+                return LuaAPI.luaL_error(L, "c# exception:" + gen_e);
+            }
             
         }
         

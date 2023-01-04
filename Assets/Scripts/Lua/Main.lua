@@ -5,6 +5,9 @@ Json = require("JsonUtility")
 
 -- 基类
 require("base/Object");
+require("base/BasePanel");
+require("base/BaseModel");
+require("base/BaseManager");
 require("BagModel")
 require("BagManager")
 -- 画布 便于后续挂载
@@ -16,4 +19,4 @@ require("ItemContent")
 require("PlayerData")
 
 -- 启动主面板
-MainPanel:Init()
+MainPanel.New()

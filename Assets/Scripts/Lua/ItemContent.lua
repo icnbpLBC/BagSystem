@@ -1,4 +1,4 @@
--- 物品类
+-- 物品类 todo 基于重写的OOP和MVC实现
 ItemContent = Object:subClass("ItemContent")
 
 -- 物品类属性 主要保存对应C#实例对象和相关UI组件
@@ -19,19 +19,30 @@ ItemContent.column = nil
 
 -- 根据物品信息 更新UI
 function ItemContent:Init(info)
+    local cb = function (asset)
+        self:Instantiate(asset, BagManager.Instance:GetScrollContentTrans())
+        -- todo 异步加载完成判定后续处理
+        self.itemImg = self.itemObj.transform:Find("Bg/ItemImg"):GetComponent(typeof(CS.UnityEngine.UI.Image))
+        self.itemTxt = self.itemObj.transform:Find("Bg/ItemTxt"):GetComponent(typeof(CS.UnityEngine.UI.Text))
+        self.itemBtn = self.itemObj.transform:Find("Bg"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+        self.itemSelectObj = self.itemObj.transform:Find("Bg/ItemSelect").gameObject
+        self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).pivot = CS.UnityEngine.Vector2(0, 1)
+        self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).anchorMin = CS.UnityEngine.Vector2(0,1)
+        self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).anchorMax = CS.UnityEngine.Vector2(0,1)
+        self.row = info.row
+        self.column = info.column
+        self:Show()
+    end
     -- 调用AB包管理器加载对应包内对应资源
-    self.itemObj = CS.ABMgr.Instance:LoadRes("prefabs", "ItemContent", typeof(CS.UnityEngine.GameObject), BagPanel.scrollContentTrans)
-    self.itemImg = self.itemObj.transform:Find("Bg/ItemImg"):GetComponent(typeof(CS.UnityEngine.UI.Image))
-    self.itemTxt = self.itemObj.transform:Find("Bg/ItemTxt"):GetComponent(typeof(CS.UnityEngine.UI.Text))
-    self.itemBtn = self.itemObj.transform:Find("Bg"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.itemSelectObj = self.itemObj.transform:Find("Bg/ItemSelect").gameObject
-    self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).pivot = CS.UnityEngine.Vector2(0, 1)
-    self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).anchorMin = CS.UnityEngine.Vector2(0,1)
-    self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).anchorMax = CS.UnityEngine.Vector2(0,1)
-    self.row = info.row
-    self.column = info.column
-    self:Show()
+    CS.ABMgr.Instance:LoadRes("prefabs", "ItemContent", typeof(CS.UnityEngine.GameObject), cb, 1)
 end
+
+function ItemContent:Instantiate(asset, parent)
+    self.itemObj = CS.UnityEngine.GameObject.Instantiate(asset, parent)
+    -- 增加引用计数
+    CS.ABMgr.Instance:AddReferenceCount("prefabs", "ItemContent")
+end
+
 
 -- 设置物品锚点和中心点 以及相对锚点位置
 function ItemContent:InitPos(position) 
@@ -58,7 +69,7 @@ function ItemContent:Update(info)
     self.itemSelectObj:SetActive(false)
     if info.id ~= nil then
         self.itemId = info.id 
-        self.itemImg.sprite = BagPanel.spriteAtlasObj:GetSprite(CS.ProjectConstantData.ItemsNameArray[self.itemId])
+        self.itemImg.sprite = BagManager.Instance:GetBagSpriteByName(CS.ProjectConstantData.ItemsNameArray[self.itemId])
         self.itemTxt.text = info.num
     else
         self.itemId = nil 
@@ -84,15 +95,15 @@ end
 -- 物品选中框 如果已被选中 则框消失  如果未被选中 则被选中的框消失 自己的框出现
 function ItemContent:OnItemSelectedClick()
     if self.itemSelectObj.activeSelf then
-        BagManager:SetSelectedRowAndColumn(nil, nil)
+        BagManager.Instance:SetSelectedRowAndColumn(nil, nil)
     end
     self:ChangeSelectedState()
     if self.itemSelectObj.activeSelf then
-        if BagManager:GetSelectedRowAndColumn().row ~= nil then
+        if BagManager.Instance:GetSelectedRowAndColumn().row ~= nil then
             
-            BagManager:ChangeSelectedStatus()
+            BagManager.Instance:ChangeSelectedStatus()
         end
-        BagManager:SetSelectedRowAndColumn(self.row, self.column)
+        BagManager.Instance:SetSelectedRowAndColumn(self.row, self.column)
     end
     
 end
