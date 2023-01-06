@@ -1,7 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using XLua;
+using Object = UnityEngine.Object;
+
 [LuaCallCSharp]
 public class ABMgr : SingleAutoMono<ABMgr>
 {
@@ -51,7 +55,7 @@ public class ABMgr : SingleAutoMono<ABMgr>
     }
 
     // 从缓存中获取已加载的资源对象
-    private Object GetObject(string abName, string resName)
+    private UnityEngine.Object GetObject(string abName, string resName)
     {
         if(cacheAsset.ContainsKey(abName) && cacheAsset[abName].ContainsKey(resName))
         {
@@ -80,6 +84,7 @@ public class ABMgr : SingleAutoMono<ABMgr>
         if (!referenceCount.ContainsKey(abName)) Debug.LogError(string.Format("The ab: '{0}' is unloaded ", abName));
         if(!referenceCount[abName].ContainsKey(resName)) Debug.LogError(string.Format("The ab: '{0}' res: '{1}' is unloaded ", abName, resName));
         referenceCount[abName][resName]--;
+
     }
 
     // 存放资源的缓存 todo 连接起来
@@ -135,7 +140,6 @@ public class ABMgr : SingleAutoMono<ABMgr>
         PutAssetInCache(assetBundle.name, resName, abr.asset);
         finishedCB(abr.asset);
     }
-
 
 
     public void UnLoad(string abName)

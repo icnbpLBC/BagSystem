@@ -6,7 +6,7 @@ local cb = function (asset)
     -- 增加引用计数
     CS.ABMgr.Instance:AddReferenceCount("itemdata", "ItemData")
 end
-CS.ABMgr.Instance:LoadRes("itemdata", "ItemData", typeof(CS.UnityEngine.TextAsset), cb, 1)
+CS.ABMgr.Instance:LoadRes("itemdata", "ItemData", typeof(CS.UnityEngine.TextAsset), cb, 0)
 
 PlayerData.itemData = nil
 

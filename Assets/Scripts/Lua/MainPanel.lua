@@ -8,22 +8,24 @@ MainPanel = MainPanel or BaseClass(BasePanel)
 
 -- 对外接口
 function MainPanel:__init()
-    local cb = function (asset)
-        self:Instantiate(asset, Canvas)
-        -- 确保资源加载完成才进行下部动作
-        self.charaBtn = self.panelObj.transform:Find("CharaBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        BagManager.New()
-        self:Show()
-    end
-    CS.ABMgr.Instance:LoadRes("prefabs", "MainPanel", typeof(CS.UnityEngine.GameObject), cb, 1);
+    self.assetList = 
+    {{abName = "prefabs", assetName = "MainPanel", type = typeof(CS.UnityEngine.GameObject)}}
 end
 
 
-function MainPanel:Instantiate(asset, parent)
-    self.panelObj = CS.UnityEngine.GameObject.Instantiate(asset, parent)
-    -- 增加引用计数
-    CS.ABMgr.Instance:AddReferenceCount("prefabs", "MainPanel")
+-- function MainPanel:Instantiate(asset, parent)
+--     self.panelObj = CS.UnityEngine.GameObject.Instantiate(asset, parent)
+--     -- 增加引用计数
+--     CS.ABMgr.Instance:AddReferenceCount("prefabs", "MainPanel")
     
+-- end
+
+function MainPanel:InitPanel()
+    self.panelObj = self:GetEntity("prefabs", "MainPanel", Canvas)
+    -- todo 明明加载完后进行回调才初始化为啥还nil
+    self.charaBtn = self.panelObj.transform:Find("CharaBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    BagManager.New()
+    self:Show()
 end
 function MainPanel:Show()
     self:AddEvent()

@@ -1,63 +1,31 @@
 -- 继承于Object
 -- BagPanel = Object:subClass("BagPanel")
 BagPanel = BagPanel or BaseClass(BasePanel)
--- -- 背包面板类特有属性
--- BagPanel.isInit = false
--- BagPanel.panelObj = nil
--- BagPanel.cloBtn = nil
--- -- 物品面板位置 便于后续物品实例化时设置父对象
--- BagPanel.scrollContentTrans = nil
-
--- -- 图集对象
--- BagPanel.spriteAtlasObj = nil
-
--- -- 各按钮组件
--- BagPanel.allItemBtn = nil
--- BagPanel.equipCateBtn = nil
--- BagPanel.itemCateBtn = nil
--- BagPanel.gemCateBtn = nil
-
--- 初始化过程
--- function BagPanel:Init()
---     if (self.isInit == false) then
---         self.panelObj = CS.ABMgr.Instance:LoadRes("prefabs", "BagPanel", typeof(CS.UnityEngine.GameObject), Canvas)
---         self.cloBtn = self.panelObj.transform:Find("Bg/CloBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
---         self.allItemBtn = self.panelObj.transform:Find("Bg/AllItemBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
---         self.equipCateBtn = self.panelObj.transform:Find("Bg/EquipCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
---         self.itemCateBtn = self.panelObj.transform:Find("Bg/ItemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
---         self.gemCateBtn = self.panelObj.transform:Find("Bg/GemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
---         self.spriteAtlasObj = CS.ABMgr.Instance:LoadRes("imgs", "Items", typeof(CS.UnityEngine.U2D.SpriteAtlas))
---         self.scrollContentTrans = self.panelObj.transform:Find("Bg/ItemPanel/ScrollView/Viewport/Content")
-
-
---         self.isInit = true
---         BagManager.Instance:LoadItemContents()
---         self:InitBag()
---         self:OnAllItemBtnClick()
---     end
---     self:Show()
--- end
-
 function BagPanel:__init()
-    local cb = function (asset)
-        self:Instantiate(asset, Canvas)
-        -- 确保加载完
-        self.cloBtn = self.panelObj.transform:Find("Bg/CloBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        self.allItemBtn = self.panelObj.transform:Find("Bg/AllItemBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        self.equipCateBtn = self.panelObj.transform:Find("Bg/EquipCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        self.itemCateBtn = self.panelObj.transform:Find("Bg/ItemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        self.gemCateBtn = self.panelObj.transform:Find("Bg/GemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-        self.scrollContentTrans = self.panelObj.transform:Find("Bg/ItemPanel/ScrollView/Viewport/Content")
-        self:InitBag()
-        self:Show()
-    end
-    CS.ABMgr.Instance:LoadRes("prefabs", "BagPanel", typeof(CS.UnityEngine.GameObject), cb, 1)
-    local cb2 = function (asset)
-        self.spriteAtlasObj = asset
-        CS.ABMgr.Instance:AddReferenceCount("imgs", "Items")
-    end
-    CS.ABMgr.Instance:LoadRes("imgs", "Items", typeof(CS.UnityEngine.U2D.SpriteAtlas), cb2, 1)
+    -- todo 资源管理器封装事件对象
+
+    self.assetList = 
+    {{abName = "prefabs", assetName = "BagPanel", type = typeof(CS.UnityEngine.GameObject)},
+    {abName = "imgs", assetName = "Items", type = typeof(CS.UnityEngine.U2D.SpriteAtlas)}}
     
+end
+
+-- 背包面板初始化
+function BagPanel:InitPanel()
+    -- GO实例化
+    self.panelObj = self:GetEntity("prefabs", "BagPanel", Canvas)
+    self.spriteAtlasObj = self:GetEntity("imgs", "Items")
+    -- 确保加载完
+    self.cloBtn = self.panelObj.transform:Find("Bg/CloBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.allItemBtn = self.panelObj.transform:Find("Bg/AllItemBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.equipCateBtn = self.panelObj.transform:Find("Bg/EquipCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.itemCateBtn = self.panelObj.transform:Find("Bg/ItemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.gemCateBtn = self.panelObj.transform:Find("Bg/GemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.scrollContentTrans = self.panelObj.transform:Find("Bg/ItemPanel/ScrollView/Viewport/Content")
+    BagManager.Instance:LoadItemContents()
+    self:InitBag()
+    self:Show() 
+    self:OnAllItemBtnClick()
 end
 
 -- 面板GO依据资源实例化
@@ -75,8 +43,10 @@ function BagPanel:InitBag()
 end
 
 function BagPanel:Show()
+
     self.panelObj:SetActive(true)
     self:AddEvent()
+
 end
 
 function BagPanel:Hide()

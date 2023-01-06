@@ -50,7 +50,9 @@ function BagModel:__init()
 end
 
 function BagModel:InitBagPanel()
-    self.panel = BagPanel.New()
-    BagManager.Instance:LoadItemContents()
-    self.panel:OnAllItemBtnClick()
+    if(self.panel == nil) then
+        self.panel = BagPanel.New()
+        self.panel:LoadAsset()
+    end
+    self.panel:Open()
 end
