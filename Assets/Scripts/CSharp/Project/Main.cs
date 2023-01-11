@@ -37,7 +37,10 @@ public class Main : MonoBehaviour
 
     }
 
-
+    private void Update()
+    {
+        ABMgr.Instance.UpdateRelease();
+    }
 
 
 }

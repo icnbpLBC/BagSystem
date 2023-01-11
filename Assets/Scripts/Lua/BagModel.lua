@@ -43,12 +43,23 @@ function BagModel:__init()
     -- 已选中的GO 在数组的位置
     self.selectedRow = nil
     self.selectedColumn = nil
-    -- 获取用户数据
-    PlayerData:Init()
-    -- 向上取整 + 1
-    self.itemColumns = math.ceil(#(PlayerData.itemData) / self.itemRows)
+    self:LoadPlayerData()
 end
 
+
+-- 加载用户数据
+function BagModel:LoadPlayerData()
+     -- 获取用户数据
+     PlayerData:Init()
+     self:InitColumns()
+end
+function BagModel:InitColumns()
+    -- 向上取整 + 1
+    self.itemColumns = math.ceil(#(PlayerData.itemData) / self.itemRows)
+    if(#(PlayerData.itemData) % self.itemRows == 0) then
+       self.itemColumns = self.itemColumns + 1
+    end
+end
 function BagModel:InitBagPanel()
     if(self.panel == nil) then
         self.panel = BagPanel.New()

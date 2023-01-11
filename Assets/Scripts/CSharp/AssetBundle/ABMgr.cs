@@ -15,12 +15,17 @@ public class ABMgr : SingleAutoMono<ABMgr>
     private Dictionary<string, Dictionary<string, int>> referenceCount = new Dictionary<string, Dictionary<string, int>>();
     // 缓存资源
     private Dictionary<string, Dictionary<string, Object>> cacheAsset = new Dictionary<string, Dictionary<string, Object>>();
+    // 准备释放的资源
+    private Dictionary<string, Dictionary<string, float>> readyToRelease = new Dictionary<string, Dictionary<string, float>>();
 
     // 主包
     private AssetBundle mainAB = null;
     // 主包配置
     private AssetBundleManifest manifest = null;
     // Start is called before the first frame update
+
+
+    private float defaultExpireTime = 1.5f;
 
     // 加载资源包
     private AssetBundle LoadAB(string abName)
@@ -76,6 +81,12 @@ public class ABMgr : SingleAutoMono<ABMgr>
             referenceCount[abName].Add(resName, 0);
         }
         referenceCount[abName][resName]++;
+
+        // 更改准备释放资源列表
+        if (readyToRelease.ContainsKey(abName) && readyToRelease[abName].ContainsKey(resName))
+        {
+            readyToRelease[abName].Remove(resName);
+        } 
     }
 
     // 减少资源引用
@@ -85,9 +96,58 @@ public class ABMgr : SingleAutoMono<ABMgr>
         if(!referenceCount[abName].ContainsKey(resName)) Debug.LogError(string.Format("The ab: '{0}' res: '{1}' is unloaded ", abName, resName));
         referenceCount[abName][resName]--;
 
+        // todo 依赖项引用同样减【依赖项只有ab包,没有对应资源】
+
+        // 资源释放
+        if(referenceCount[abName][resName] <= 0)
+        {
+            if (!readyToRelease.ContainsKey(abName)) readyToRelease[abName] = new Dictionary<string, float>();
+            readyToRelease[abName][resName] = Time.time;
+           
+        }
+
     }
 
-    // 存放资源的缓存 todo 连接起来
+    public void UpdateRelease()
+    {
+        // 是否需要释放资源
+        if (readyToRelease.Count <= 0) return;
+        // 获取过去时间
+        float nowTime = Time.unscaledTime;
+        Dictionary<string, string> temp = new Dictionary<string, string>();
+        foreach (var entryAB in readyToRelease)
+        {
+
+            foreach(var entryAsset in readyToRelease[entryAB.Key])
+            {
+                if ((nowTime - entryAsset.Value) < defaultExpireTime) continue;
+
+                // 释放资源
+                temp.Add(entryAB.Key, entryAsset.Key);
+                Destroy(cacheAsset[entryAB.Key][entryAsset.Key]);
+                cacheAsset[entryAB.Key].Remove(entryAsset.Key);
+            }
+
+            // 包释放
+            if (referenceCount[entryAB.Key].Count <= 0)
+            {
+                cacheAB[entryAB.Key].Unload(true);
+                cacheAB.Remove(entryAB.Key);
+            }
+        }
+
+
+
+        // 已释放资源 不再重新释放
+        foreach(var entry in temp)
+        {
+            readyToRelease[entry.Key].Remove(entry.Value);
+        }
+
+    }
+   
+
+    // 存放资源的缓存
     private void PutAssetInCache(string abName, string resName, Object obj)
     {
         if (!cacheAsset.ContainsKey(abName)) cacheAsset.Add(abName, new Dictionary<string, Object>());
@@ -159,4 +219,7 @@ public class ABMgr : SingleAutoMono<ABMgr>
         mainAB = null;
         manifest = null;
     }
+
+
 }
+

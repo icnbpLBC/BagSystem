@@ -28,6 +28,90 @@ function BagManager:GetContentsSize()
     return (self.model.perfabW + self.model.padX) * self.model.itemColumns
 end
 
+-- 重新加载背包数据 增加删除物品时调用
+function BagManager:ReLoadBagData()
+    -- 调整背包面板大小
+    self.model:InitColumns()
+    self.model.panel:InitBag()
+
+    -- 更新数据
+    if self.model.categoryStatus == 0 then
+        for j = self.model.leftIndex, self.model.rightIndex do
+            for i = 1, self.model.showRows do
+
+                -- 实际列
+                local realColumn = nil
+                if (j % (self.model.showColumns)) == 0 then
+                    realColumn = self.model.showColumns
+                else
+                    realColumn = (j % (self.model.showColumns))
+                end
+                -- 二维索引映射一维
+                if ((i + (j - 1) * self.model.showRows) <= #(PlayerData.itemData)) then
+                    self.model.itemDatas[i][realColumn]:Update(PlayerData.itemData[i + (j - 1) * self.model.showRows])
+                end
+            end
+        end
+    elseif self.model.categoryStatus == 1 then
+        for j = self.model.leftIndex, self.model.rightIndex do
+            for i = 1, self.model.showRows do
+
+                -- 实际列
+                local realColumn = nil
+                if (j % (self.model.showColumns)) == 0 then
+                    realColumn = self.model.showColumns
+                else
+                    realColumn = (j % (self.model.showColumns))
+                end
+                -- 二维索引映射一维
+                if ((i + (j - 1) * self.model.showRows) <= #(self.model.equipCategory)) then
+                    self.model.itemDatas[i][realColumn]:Update(self.model.equipCategory[
+                        i + (j - 1) * self.model.showRows])
+                end
+            end
+        end
+
+    elseif self.model.categoryStatus == 2 then
+        for j = self.model.leftIndex, self.model.rightIndex do
+            for i = 1, self.model.showRows do
+
+                -- 实际列
+                local realColumn = nil
+                if (j % (self.model.showColumns)) == 0 then
+                    realColumn = self.model.showColumns
+                else
+                    realColumn = (j % (self.model.showColumns))
+                end
+                -- 二维索引映射一维
+                if ((i + (j - 1) * self.model.showRows) <= #(self.model.itemCategory)) then
+                    self.model.itemDatas[i][realColumn]:Update(self.model.itemCategory[i + (j - 1) * self.model.showRows
+                        ])
+                end
+            end
+        end
+
+
+    else
+        for j = self.model.leftIndex, self.model.rightIndex do
+            for i = 1, self.model.showRows do
+
+                -- 实际列
+                local realColumn = nil
+                if (j % (self.model.showColumns)) == 0 then
+                    realColumn = self.model.showColumns
+                else
+                    realColumn = (j % (self.model.showColumns))
+                end
+                -- 二维索引映射一维
+                if ((i + (j - 1) * self.model.showRows) <= #(self.model.gemCategory)) then
+                    self.model.itemDatas[i][realColumn]:Update(self.model.gemCategory[i + (j - 1) * self.model.showRows])
+                end
+            end
+        end
+    end
+
+end
+
 -- 根据标签为背包物品做初始加载
 function BagManager:ShowCateData()
     -- todo 清除数据
@@ -46,7 +130,7 @@ function BagManager:ShowCateData()
         for j = 1, self.model.showColumns do
             for i = 1, self.model.showRows do
 
-                
+
                 self.model.itemDatas[i][j]:InitPos({ ['x'] = (j - 1) * self.model.perfabW + (j) * self.model.padX,
                     ['y'] = -(i - 1) * self.model.perfabH - (i) * self.model.padY })
 
@@ -103,6 +187,7 @@ end
 
 -- 加载物品内容
 function BagManager:LoadItemContents()
+    table.remove(self.model.equipCategory)
     -- 分类存储用户数据
     for i, v in pairs(PlayerData.itemData) do
         if v.type == 'equip' then
@@ -119,7 +204,7 @@ function BagManager:LoadItemContents()
         self.model.itemDatas[i] = {}
         for j = 1, self.model.showColumns do
             obj = ItemContent:new()
-            obj:Init({["row"] = i, ["column"] = j})
+            obj:Init({ ["row"] = i, ["column"] = j })
             self.model.itemDatas[i][j] = obj
         end
     end
@@ -134,28 +219,28 @@ function BagManager:TryNewLoad(info)
             self.model.itemDatas[info.showRow][info.showColumn]:Update(PlayerData.itemData[info.index])
         else
             -- todo 无需装填时
-            self.model.itemDatas[info.showRow][info.showColumn]:Update({["id"] = nil})
+            self.model.itemDatas[info.showRow][info.showColumn]:Update({ ["id"] = nil })
         end
     elseif self.model.categoryStatus == 1 then
         if info.index <= #self.model.equipCategory then
             self.model.itemDatas[info.showRow][info.showColumn]:Update(self.model.equipCategory[info.index])
         else
             -- todo 无需装填时
-            self.model.itemDatas[info.showRow][info.showColumn]:Update({["id"] = nil})
+            self.model.itemDatas[info.showRow][info.showColumn]:Update({ ["id"] = nil })
         end
     elseif self.model.categoryStatus == 2 then
         if info.index <= #self.model.itemCategory then
             self.model.itemDatas[info.showRow][info.showColumn]:Update(self.model.itemCategory[info.index])
         else
             -- todo 无需装填时
-            self.model.itemDatas[info.showRow][info.showColumn]:Update({["id"] = nil})
+            self.model.itemDatas[info.showRow][info.showColumn]:Update({ ["id"] = nil })
         end
     else
         if info.index <= #self.model.gemCategory then
             self.model.itemDatas[info.showRow][info.showColumn]:Update(self.model.gemCategory[info.index])
         else
             -- todo 无需装填时
-            self.model.itemDatas[info.showRow][info.showColumn]:Update({["id"] = nil})
+            self.model.itemDatas[info.showRow][info.showColumn]:Update({ ["id"] = nil })
         end
     end
 end
@@ -177,7 +262,8 @@ function BagManager:LeftScrollUpdate()
 
     -- 更改移出GO的x位置【补充到右索引处】
     for i = 1, self.model.showRows do
-        self.model.itemDatas[i][realLeftIndex]:ChangeX((self.model.rightIndex) * (self.model.perfabW + self.model.padX) + self.model.padX)
+        self.model.itemDatas[i][realLeftIndex]:ChangeX((self.model.rightIndex) * (self.model.perfabW + self.model.padX) +
+            self.model.padX)
         -- 判断后面是否有未加载的物品 如果有则补充加载
         -- index表示映射到一维物品数组中的索引
         self:TryNewLoad({ ["index"] = (i + (self.model.rightIndex) * self.model.showRows), ["showRow"] = i,
@@ -187,6 +273,49 @@ function BagManager:LeftScrollUpdate()
 
     self.model.leftIndex = (self.model.leftIndex + 1)
     self.model.rightIndex = (self.model.rightIndex + 1)
+end
+
+-- 增加物品
+function BagManager:AddItem()
+    -- 增加随机数种子
+    math.randomseed(os.time())
+    -- 基于分类来增加
+    -- 随机选择当前分类中的某个id
+    -- 0-5 装备 6 - 12 宝石  13 - 16 物品
+    if self.model.categoryStatus == 0 then
+        local tar = math.random(0, 16)
+        --  在对应集合中增加物品
+        PlayerData.itemData[#PlayerData.itemData + 1] = PlayerData.itemData[tar]
+        -- 重新加载
+        self:ReLoadBagData()
+        --  增加后序列化到对应文件中
+    elseif self.model.categoryStatus == 1 then
+        local tar = math.random(0, 5)
+        --  在对应集合中增加物品
+        PlayerData.itemData[#PlayerData.itemData + 1] = PlayerData.itemData[tar]
+        self.model.equipCategory[#self.model.equipCategory + 1] = PlayerData.itemData[tar]
+        -- 重新加载
+        self:ReLoadBagData()
+    elseif self.model.categoryStatus == 2 then
+        local tar = math.random(13, 16)
+        --  在对应集合中增加物品
+        PlayerData.itemData[#PlayerData.itemData + 1] = PlayerData.itemData[tar]
+        self.model.itemCategory[#self.model.itemCategory + 1] = PlayerData.itemData[tar]
+        -- 重新加载
+        self:ReLoadBagData()
+    elseif self.model.categoryStatus == 3 then
+        local tar = math.random(6, 12)
+        --  在对应集合中增加物品
+        PlayerData.itemData[#PlayerData.itemData + 1] = PlayerData.itemData[tar]
+        self.model.gemCategory[#self.model.gemCategory + 1] = PlayerData.itemData[tar]
+        -- 重新加载
+        self:ReLoadBagData()
+    end
+end
+
+-- 删除物品
+function BagManager:DeleteItem()
+
 end
 
 -- 右滑操作 更新对应索引
@@ -201,7 +330,8 @@ function BagManager:RightScrollUpdate()
 
 
     for i = 1, self.model.showRows do
-        self.model.itemDatas[i][realRightIndex]:ChangeX((self.model.leftIndex - 2) * (self.model.perfabW + self.model.padX) + self.model.padX)
+        self.model.itemDatas[i][realRightIndex]:ChangeX((self.model.leftIndex - 2) *
+            (self.model.perfabW + self.model.padX) + self.model.padX)
         -- 判断后面是否有未加载的物品 如果有则补充加载
         -- index表示映射到一维物品数组中的索引
         self:TryNewLoad({ ["index"] = (i + (self.model.leftIndex - 2) * self.model.showRows), ["showRow"] = i,
@@ -213,18 +343,18 @@ end
 
 -- 滚动操作
 function BagManager:ScrollMove(x)
-    if(math.abs(x) > self:GetLeftCompareValue()) then
+    if (math.abs(x) > self:GetLeftCompareValue()) then
         self:LeftScrollUpdate()
     end
-    if(math.abs(x) < self:GetRightCompareValue()) then
+    if (math.abs(x) < self:GetRightCompareValue()) then
         self:RightScrollUpdate()
     end
-    
+
 end
 
 -- 获取选中行列
 function BagManager:GetSelectedRowAndColumn()
-    return {row = self.model.selectedRow, column = self.model.selectedColumn}
+    return { row = self.model.selectedRow, column = self.model.selectedColumn }
 end
 
 -- 设置选中行列

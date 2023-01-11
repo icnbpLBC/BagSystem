@@ -53,11 +53,12 @@ function AssetLoader:GetEntity(abName, assetName, parent)
       if(data.type == typeof(CS.UnityEngine.GameObject)) then
         -- 局部变量销毁 返回拷贝后就销毁 -- todo 浅拷贝
         local obj = CS.UnityEngine.GameObject.Instantiate(data.asset, parent)
-        -- 减少引用
+        -- 增加引用
         CS.ABMgr.Instance:AddReferenceCount(data.abName, data.assetName)
         return obj
       else
         local asset = data.asset
+        CS.ABMgr.Instance:AddReferenceCount(data.abName, data.assetName)
         return asset
       end
     end
