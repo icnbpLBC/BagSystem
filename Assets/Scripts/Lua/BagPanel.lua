@@ -11,19 +11,19 @@ function BagPanel:__init()
 end
 
 -- 背包面板初始化
-function BagPanel:InitPanel()
+function BagPanel:InitView()
     -- GO实例化
-    self.panelObj = self:GetEntity("prefabs", "BagPanel", Canvas)
+    self.gameObject = self:GetEntity("prefabs", "BagPanel", Canvas)
     self.spriteAtlasObj = self:GetEntity("imgs", "Items")
     -- 确保加载完
-    self.cloBtn = self.panelObj.transform:Find("Bg/CloBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.allItemBtn = self.panelObj.transform:Find("Bg/AllItemBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.equipCateBtn = self.panelObj.transform:Find("Bg/EquipCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.itemCateBtn = self.panelObj.transform:Find("Bg/ItemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.gemCateBtn = self.panelObj.transform:Find("Bg/GemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.scrollContentTrans = self.panelObj.transform:Find("Bg/ItemPanel/ScrollView/Viewport/Content")
-    self.AddBtn = self.panelObj.transform:Find("Bg/AddBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
-    self.DeleteBtn = self.panelObj.transform:Find("Bg/DeleteBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.cloBtn = self.gameObject.transform:Find("Bg/CloBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.allItemBtn = self.gameObject.transform:Find("Bg/AllItemBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.equipCateBtn = self.gameObject.transform:Find("Bg/EquipCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.itemCateBtn = self.gameObject.transform:Find("Bg/ItemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.gemCateBtn = self.gameObject.transform:Find("Bg/GemCateBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.scrollContentTrans = self.gameObject.transform:Find("Bg/ItemPanel/ScrollView/Viewport/Content")
+    self.AddBtn = self.gameObject.transform:Find("Bg/AddBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.DeleteBtn = self.gameObject.transform:Find("Bg/DeleteBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
     BagManager.Instance:LoadItemContents()
     self:InitBag()
     self:Show() 
@@ -32,7 +32,7 @@ end
 
 -- 面板GO依据资源实例化
 function BagPanel:Instantiate(asset, parent)
-    self.panelObj = CS.UnityEngine.GameObject.Instantiate(asset, parent)
+    self.gameObject = CS.UnityEngine.GameObject.Instantiate(asset, parent)
     -- 增加引用计数
     CS.ABMgr.Instance:AddReferenceCount("prefabs", "BagPanel")
 end
@@ -46,18 +46,18 @@ end
 
 function BagPanel:Show()
 
-    self.panelObj:SetActive(true)
+    self.gameObject:SetActive(true)
     self:AddEvent()
 
 end
 
 function BagPanel:Hide()
     self:DelEvent()
-    self.panelObj:SetActive(false)
+    self.gameObject:SetActive(false)
 end
 
 function BagPanel:AddEvent()
-    self.panelObj.transform:Find("Bg/ItemPanel/ScrollView"):GetComponent(typeof(CS.UnityEngine.UI.ScrollRect)).onValueChanged
+    self.gameObject.transform:Find("Bg/ItemPanel/ScrollView"):GetComponent(typeof(CS.UnityEngine.UI.ScrollRect)).onValueChanged
         :AddListener(function(vec2)
             self:OnScrollMoveWidth(vec2)
         end)
@@ -80,6 +80,9 @@ function BagPanel:AddEvent()
     self.AddBtn.onClick:AddListener(function ()
         BagManager.Instance:AddItem()
     end)
+    self.DeleteBtn.onClick:AddListener(function ()
+        BagManager.Instance:DeleteItem()
+    end)
 end
 
 function BagPanel:DelEvent()
@@ -91,13 +94,13 @@ function BagPanel:DelEvent()
 end
 
 function BagPanel:ClearCateClick()
-    self.panelObj.transform:Find("Bg/AllItemBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/AllItemBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.white
-    self.panelObj.transform:Find("Bg/EquipCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/EquipCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.white
-    self.panelObj.transform:Find("Bg/ItemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/ItemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.white
-    self.panelObj.transform:Find("Bg/GemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/GemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.white
 end
 
@@ -112,10 +115,9 @@ function BagPanel:OnAllItemBtnClick()
     -- self.categoryStatus = 0
     BagManager.Instance:UpdateCateStatus(0)
     -- 更改颜色为选中
-    self.panelObj.transform:Find("Bg/AllItemBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/AllItemBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- 显示物品
-    -- self:ShowCateData()
     -- 还原content位置
     BagManager.Instance:ShowCateData()
     self.scrollContentTrans.anchoredPosition = CS.UnityEngine.Vector2(0,0)
@@ -125,7 +127,7 @@ function BagPanel:OnEquipCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 1
     BagManager.Instance:UpdateCateStatus(1)
-    self.panelObj.transform:Find("Bg/EquipCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/EquipCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     --self:ShowCateData()
     -- 还原content位置
@@ -137,7 +139,7 @@ function BagPanel:OnItemCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 2
     BagManager.Instance:UpdateCateStatus(2)
-    self.panelObj.transform:Find("Bg/ItemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/ItemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- self:ShowCateData()
     -- 还原content位置
@@ -150,7 +152,7 @@ function BagPanel:OnGemCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 3
     BagManager.Instance:UpdateCateStatus(3)
-    self.panelObj.transform:Find("Bg/GemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
+    self.gameObject.transform:Find("Bg/GemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- self:ShowCateData()
     self.scrollContentTrans.anchoredPosition = CS.UnityEngine.Vector2(0,0)

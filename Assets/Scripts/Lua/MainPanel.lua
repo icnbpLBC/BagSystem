@@ -20,11 +20,15 @@ end
     
 -- end
 
-function MainPanel:InitPanel()
-    self.panelObj = self:GetEntity("prefabs", "MainPanel", Canvas)
+function MainPanel:InitView()
+    self.gameObject = self:GetEntity("prefabs", "MainPanel", Canvas)
     -- todo 明明加载完后进行回调才初始化为啥还nil
-    self.charaBtn = self.panelObj.transform:Find("CharaBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    self.charaBtn = self.gameObject.transform:Find("CharaBtn"):GetComponent(typeof(CS.UnityEngine.UI.Button))
+    PlayerDataMamager:New()
+    ItemContentManager:New()
     BagManager.New()
+    
+    
     self:Show()
 end
 function MainPanel:Show()

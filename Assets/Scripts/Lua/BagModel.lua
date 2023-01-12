@@ -2,25 +2,10 @@
 -- BagModel = Object:subClass("BagModel")
 BagModel = BagModel or BaseClass(BaseModel)
 
--- function BagModel:Init()
---     -- self.model = BagPanel
---     -- 获取用户数据
---     PlayerData:Init()
---     -- 向上取整 + 1
---     self.itemColumns = math.ceil(#(PlayerData.itemData) / self.itemRows)
--- end
 
 function BagModel:__init()
     -- 封装对应的视图对象
     self.panel = nil
-
-    -- 显示的二维GO数组
-    self.itemDatas = {}
-    -- 对应物体分类集合
-    self.equipCategory = {}
-    self.gemCategory = {}
-    self.itemCategory = {}
-
     self.categoryStatus = nil -- 分类状态 0-全部 1-装备 2-物品 3-宝石
     -- 通过物品行数和列数 得出面板大小
     self.itemRows = 5
@@ -50,13 +35,13 @@ end
 -- 加载用户数据
 function BagModel:LoadPlayerData()
      -- 获取用户数据
-     PlayerData:Init()
+     PlayerDataMamager.Instance:InitBagData()
      self:InitColumns()
 end
 function BagModel:InitColumns()
     -- 向上取整 + 1
-    self.itemColumns = math.ceil(#(PlayerData.itemData) / self.itemRows)
-    if(#(PlayerData.itemData) % self.itemRows == 0) then
+    self.itemColumns = math.ceil(#(PlayerDataMamager.Instance.itemData) / self.itemRows)
+    if(#(PlayerDataMamager.Instance.itemData) % self.itemRows == 0) then
        self.itemColumns = self.itemColumns + 1
     end
 end

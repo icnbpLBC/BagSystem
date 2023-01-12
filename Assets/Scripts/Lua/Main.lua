@@ -4,13 +4,16 @@ require("SplitTools")
 Json = require("JsonUtility")
 
 
+-- todo require 封装
 -- 基类
 require("base/Object");
+require("base/BaseView");
 require("base/BasePanel");
 require("base/BaseModel");
 require("base/BaseManager");
 require("util/AssetLoader")
 require("util/EventManager")
+require("ItemContentModel")
 require("BagModel")
 require("BagManager")
 -- 画布 便于后续挂载
@@ -18,8 +21,8 @@ Canvas = CS.UnityEngine.GameObject.Find("Canvas").transform
 
 require("MainPanel")
 require("BagPanel")
-require("ItemContent")
-require("PlayerData")
+require("ItemContentManager")
+require("PlayerDataManager")
 
 -- 启动主面板
 Start = MainPanel.New()
