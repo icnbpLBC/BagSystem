@@ -38,9 +38,10 @@ function BagManager:GetRealColumn(logicColumn)
     end
     return realColumn
 end
+
 -- 更新最后一个物品
 function BagManager:UpdateLastItem(itemList, isAdd)
-    -- 先获取实际GO的逻辑索引
+    -- 先获取最后一个GO的逻辑索引
     local realRow = (#itemList) % self.model.showRows
     local logicColumn = math.ceil((#itemList) / self.model.showRows)
 
@@ -58,12 +59,12 @@ function BagManager:UpdateLastItem(itemList, isAdd)
 
     -- 增加操作
     if isAdd then
-        
         ItemContentManager.Instance.itemDatas[realRow][realColumn]:Update(itemList[
             #itemList])
     else
     end
 end
+
 
 -- 调整背包面板大小
 function BagManager:UpdateBagSize()
@@ -79,7 +80,7 @@ function BagManager:InitBagItemDataByCateList(tarCateList)
 
             ItemContentManager.Instance.itemDatas[i][j]:InitPos({ ['x'] = (j - 1) * self.model.perfabW +
                 (j) * self.model.padX,
-                ['y'] = -(i - 1) * self.model.perfabH - (i) * self.model.padY })
+                ['y'] = -(i - 1) * self.model.perfabH - (i) * self.model.padY},{row = i, column = j})
 
 
             -- 二维索引映射一维
@@ -93,7 +94,8 @@ end
 
 -- 根据标签为背包物品做初始加载
 function BagManager:ShowCateData()
-    -- todo 清除数据
+    -- 清除数据
+    ItemContentManager.Instance.selectedItem = nil
     for i = 1, self.model.showRows do
         for j = 1, self.model.showColumns do
             ItemContentManager.Instance.itemDatas[i][j]:ChangeActive(false)
@@ -103,7 +105,7 @@ function BagManager:ShowCateData()
     self.model.leftIndex = 1
     self.model.rightIndex = 6
 
-    -- todo 根据类别更新显示数据
+    -- 根据类别更新显示数据
     -- 左右滑动 故外循环为列 内循环为行
     if self.model.categoryStatus == 0 then
         self:InitBagItemDataByCateList(PlayerDataMamager.Instance.itemData)
@@ -162,6 +164,16 @@ function BagManager:TryNewLoad(info)
     end
 end
 
+-- 获取实际显示列个数
+function BagManager:GetShowColumns()
+    return self.model.showColumns
+end
+
+-- 获取实际显示行个数
+function BagManager:GetShowRows()
+    return self.model.showRows
+end
+
 function BagManager:GetCateStatus()
     return self.model.categoryStatus
 end
@@ -173,6 +185,7 @@ end
 
 -- 左滑操作 更新对应索引
 function BagManager:LeftScrollUpdate()
+    ItemContentManager.Instance:AllItemsColumnDecreaseOne()
     -- 对应GO的列索引
     local realLeftIndex = self:GetRealColumn(self.model.leftIndex)
 
@@ -221,23 +234,33 @@ end
 
 -- 删除物品
 function BagManager:DeleteItem()
-    local select = self:GetSelectedRowAndColumn()
     -- 判断是否选中
-    if select.row == nil then
+    if ItemContentManager.Instance.selectedItem == nil then
         return nil
     end
     -- 图片清除
-    ItemContentManager.Instance.itemDatas[select.row][select.column]:Update({ ["id"] = nil })
+    ItemContentManager.Instance.selectedItem:Update({ ["id"] = nil })
+
+    local tar = ItemContentManager.Instance.selectedItem
+
     -- 选中为取消
-    ItemContentManager.Instance.itemDatas[select.row][select.column]:OnItemSelectedClick()
+    ItemContentManager.Instance.selectedItem:OnItemSelectedClick()
+    
     -- 根据选中的实际行列来找出实际的一维位置
-    local realIndex = (self.model.leftIndex + select.column - 2) * self.model.showRows + select.row
+    -- 需要由抽象二维映射到实际一维
+    local realIndex = (self.model.leftIndex + tar.logicColumn - 2) * self.model.showRows + tar.logicRow
     -- 减少对应集合中的引用
-    PlayerDataMamager.Instance:DeleteLastItem(realIndex)
+    PlayerDataMamager.Instance:DeleteItem(realIndex)
+
+    -- 删除后自动往前补齐
+    ItemContentManager.Instance:BehindTarItemsMoveForward(tar)
+
 end
 
 -- 右滑操作 更新对应索引
 function BagManager:RightScrollUpdate()
+    -- GO列位置改变
+    ItemContentManager.Instance:AllItemsColumnAddOne()
     -- 实际物品的列索引
     local realRightIndex = self:GetRealColumn(self.model.rightIndex)
 
@@ -267,7 +290,7 @@ end
 
 -- 获取选中行列
 function BagManager:GetSelectedRowAndColumn()
-    return { row = self.model.selectedRow, column = self.model.selectedColumn }
+    return { row = self.model.selectedLogicRow, column = self.model.selectedLogicColumn }
 end
 
 -- 设置选中行列
@@ -278,7 +301,7 @@ end
 
 -- 改变被选中物体的状态
 function BagManager:ChangeSelectedStatus()
-    ItemContentManager.Instance.itemDatas[self.model.selectedRow][self.model.selectedColumn]:ChangeSelectedState()
+    ItemContentManager.Instance.selectedItem:ChangeSelectedState()
 end
 
 -- 获取content的transform
@@ -290,3 +313,4 @@ end
 function BagManager:GetBagSpriteByName(name)
     return self.model.panel.spriteAtlasObj:GetSprite(name)
 end
+

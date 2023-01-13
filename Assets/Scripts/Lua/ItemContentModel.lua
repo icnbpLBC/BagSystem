@@ -39,18 +39,48 @@ function ItemContentModel:InitModel(asset, parent, info)
     self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).pivot = CS.UnityEngine.Vector2(0, 1)
     self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).anchorMin = CS.UnityEngine.Vector2(0, 1)
     self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).anchorMax = CS.UnityEngine.Vector2(0, 1)
-    -- 实际行列
-    self.row = info.row
-    self.column = info.column
+    -- 对应抽象行列【1~showColumn】 滑动格子复用过程中会进行变化
+    self.logicRow = info.row
+    self.logicColumn = info.column
+
+    -- 对应实际行列
+    self.realRow = info.row
+    self.realColumn = info.column
     self:Show()
 end
 
+-- 抽象列增加
+function ItemContentModel:ColumnAdd()
+    local threshold = BagManager.Instance:GetShowColumns()
+    if(self.logicColumn == threshold)then
+        self.logicColumn = 1
+    else
+        self.logicColumn = self.logicColumn + 1
+    end
+end
 
--- 设置物品锚点和中心点 以及相对锚点位置
-function ItemContentModel:InitPos(position) 
+-- 抽象列减少
+function ItemContentModel:ColumnDecrease()
+    local threshold = 1
+    if(self.logicColumn == threshold) then
+        self.logicColumn = BagManager.Instance:GetShowColumns()
+    else
+        self.logicColumn = self.logicColumn - 1
+    end
+end
+
+-- 设置物品锚点和中心点 以及相对锚点位置 以及逻辑和实际行列
+function ItemContentModel:InitPos(position, info) 
     self.posi = position
     -- todo 设置相对锚点位置
     self.itemObj:GetComponent(typeof(CS.UnityEngine.RectTransform)).anchoredPosition = CS.UnityEngine.Vector2(self.posi.x, self.posi.y)
+
+    self.logicRow = info.row
+    self.logicColumn = info.column
+
+    -- 对应实际行列
+    self.realRow = info.row
+    self.realColumn = info.column
     self:ChangeActive(true)
 end
 
@@ -67,7 +97,6 @@ end
 -- 更新物品GO的UI
 function ItemContentModel:Update(info)
     -- 更新时一定未被选中
-    self.itemSelectObj:SetActive(false)
     if info.id ~= nil then
         self.itemId = info.id 
         self.itemImg.sprite = BagManager.Instance:GetBagSpriteByName(CS.ProjectConstantData.ItemsNameArray[self.itemId])
@@ -78,6 +107,13 @@ function ItemContentModel:Update(info)
         self.itemTxt.text = ""
     end
     
+end
+
+-- 根据另一物品信息进行更新
+function ItemContentModel:UpdateByAnotherItem(anotherItem)
+    self.itemId = anotherItem.itemId
+    self.itemImg.sprite = anotherItem.itemImg.sprite
+    self.itemTxt.text = anotherItem.itemTxt.text
 end
 
 function ItemContentModel:Show()
@@ -97,15 +133,17 @@ end
 -- 物品选中框 如果已被选中 则框消失  如果未被选中 则被选中的框消失 自己的框出现
 function ItemContentModel:OnItemSelectedClick()
     if self.itemSelectObj.activeSelf then
-        BagManager.Instance:SetSelectedRowAndColumn(nil, nil)
+        -- 记录选中的物品
+        ItemContentManager.Instance.selectedItem = nil
     end
     self:ChangeSelectedState()
     if self.itemSelectObj.activeSelf then
-        if BagManager.Instance:GetSelectedRowAndColumn().row ~= nil then
+        if ItemContentManager.Instance.selectedItem ~= nil then
             
-            BagManager.Instance:ChangeSelectedStatus()
+            ItemContentManager.Instance.selectedItem:ChangeSelectedState()
         end
-        BagManager.Instance:SetSelectedRowAndColumn(self.row, self.column)
+        -- 记录选中的物品
+        ItemContentManager.Instance.selectedItem = self
     end
     
 end

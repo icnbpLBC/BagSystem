@@ -26,8 +26,8 @@ function BagModel:__init()
     self.perfabH = 125
 
     -- 已选中的GO 在数组的位置
-    self.selectedRow = nil
-    self.selectedColumn = nil
+    self.selectedLogicRow = nil
+    self.selectedLogicColumn = nil
     self:LoadPlayerData()
 end
 

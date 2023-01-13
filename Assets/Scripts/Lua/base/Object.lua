@@ -39,3 +39,32 @@ function BaseClass(super)
     end
     return class_type
 end
+
+-- 深拷贝函数
+function Copy(tar)
+    function _copy(obj)
+        if type(obj) ~= 'table' then
+            return obj
+        end
+        local new_table = {}
+        for k, v in pairs(obj) do
+            -- 递归进行
+            new_table[_copy(k)] = _copy(v)
+        end
+        return setmetatable(new_table, getmetatable(obj))
+    end
+    return _copy(tar)
+end
+
+-- 查找表中元素对应的键
+function FindKey(table, tar)
+    if type(table) ~= 'table' then
+        return nil
+    end
+    for key, value in pairs(table) do
+        if value == tar then
+            return key
+        end
+    end
+    return nil
+end
