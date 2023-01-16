@@ -19,19 +19,12 @@ function ItemContentModel:__init()
 end
 
 function ItemContentModel:LoadModel(info)
-    local cb = function(asset)
-        self:InitModel(asset, BagManager.Instance:GetScrollContentTrans(), info)
-    end
-    -- 调用AB包管理器加载对应包内对应资源
-    CS.ABMgr.Instance:LoadRes("prefabs", "ItemContent", typeof(CS.UnityEngine.GameObject), cb, 1)
+    self:InitModel(info)
 end
 
 -- 屬性初始化
-function ItemContentModel:InitModel(asset, parent, info)
-    self.itemObj = CS.UnityEngine.GameObject.Instantiate(asset, parent)
-    -- 增加引用计数
-    CS.ABMgr.Instance:AddReferenceCount("prefabs", "ItemContent")
-    -- todo 异步加载完成判定后续处理
+function ItemContentModel:InitModel(info)
+    self.itemObj = PreLoadDataManager.Instance:GetEntity("prefabs", "ItemContent", BagManager.Instance:GetScrollContentTrans())
     self.itemImg = self.itemObj.transform:Find("Bg/ItemImg"):GetComponent(typeof(CS.UnityEngine.UI.Image))
     self.itemTxt = self.itemObj.transform:Find("Bg/ItemTxt"):GetComponent(typeof(CS.UnityEngine.UI.Text))
     self.itemBtn = self.itemObj.transform:Find("Bg"):GetComponent(typeof(CS.UnityEngine.UI.Button))

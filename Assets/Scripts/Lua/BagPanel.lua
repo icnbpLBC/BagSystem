@@ -2,8 +2,6 @@
 -- BagPanel = Object:subClass("BagPanel")
 BagPanel = BagPanel or BaseClass(BasePanel)
 function BagPanel:__init()
-    -- todo 资源管理器封装事件对象
-
     self.assetList = 
     {{abName = "prefabs", assetName = "BagPanel", type = typeof(CS.UnityEngine.GameObject)},
     {abName = "imgs", assetName = "Items", type = typeof(CS.UnityEngine.U2D.SpriteAtlas)}}
@@ -108,12 +106,13 @@ function BagPanel:OnScrollMoveWidth(vec2)
     BagManager.Instance:ScrollMove(self.scrollContentTrans.anchoredPosition.x)
 end
 
+-- todo 页签改为toggle实现
 function BagPanel:OnAllItemBtnClick()
     -- 清空选中颜色
     self:ClearCateClick()
     -- 修改状态
     -- self.categoryStatus = 0
-    BagManager.Instance:UpdateCateStatus(0)
+    BagManager.Instance:UpdateCateStatus(BagEnum.categoryStatus.All)
     -- 更改颜色为选中
     self.gameObject.transform:Find("Bg/AllItemBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
@@ -126,7 +125,7 @@ end
 function BagPanel:OnEquipCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 1
-    BagManager.Instance:UpdateCateStatus(1)
+    BagManager.Instance:UpdateCateStatus(BagEnum.categoryStatus.Equip)
     self.gameObject.transform:Find("Bg/EquipCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     --self:ShowCateData()
@@ -138,7 +137,7 @@ end
 function BagPanel:OnItemCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 2
-    BagManager.Instance:UpdateCateStatus(2)
+    BagManager.Instance:UpdateCateStatus(BagEnum.categoryStatus.Item)
     self.gameObject.transform:Find("Bg/ItemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- self:ShowCateData()
@@ -151,7 +150,7 @@ end
 function BagPanel:OnGemCateBtnClick()
     self:ClearCateClick()
     -- self.categoryStatus = 3
-    BagManager.Instance:UpdateCateStatus(3)
+    BagManager.Instance:UpdateCateStatus(BagEnum.categoryStatus.Gem)
     self.gameObject.transform:Find("Bg/GemCateBtn/Image"):GetComponent(typeof(CS.UnityEngine.UI.Image)).color = CS.UnityEngine
         .Color.red
     -- self:ShowCateData()

@@ -13,6 +13,9 @@ require("base/BaseModel");
 require("base/BaseManager");
 require("util/AssetLoader")
 require("util/EventManager")
+require("util/LoaderEnum")
+require("BagEnum")
+require("PreLoadDataManager")
 require("ItemContentModel")
 require("BagModel")
 require("BagManager")
@@ -23,7 +26,7 @@ require("MainPanel")
 require("BagPanel")
 require("ItemContentManager")
 require("PlayerDataManager")
-
+PreLoadDataManager.New()
 -- 启动主面板
 Start = MainPanel.New()
 Start:LoadAsset()

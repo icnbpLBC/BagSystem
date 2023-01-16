@@ -3,14 +3,7 @@ PlayerDataMamager = PlayerDataMamager or BaseClass(BaseManager)
 -- todo 非面板类型资源异步加载
 function PlayerDataMamager:__init()
     PlayerDataMamager.Instance = self
-    self.itemDataJsonStr = nil
-    local cb = function(asset)
-        self.itemDataJsonStr = asset
-        -- 增加引用计数
-        CS.ABMgr.Instance:AddReferenceCount("itemdata", "ItemData")
-    end
-    CS.ABMgr.Instance:LoadRes("itemdata", "ItemData", typeof(CS.UnityEngine.TextAsset), cb, 1)
-
+    self.itemDataJsonStr = PreLoadDataManager.Instance:GetEntity("itemdata", "ItemData")
 end
 
 function PlayerDataMamager:InitBagData()
@@ -52,7 +45,7 @@ end
 function PlayerDataMamager:DeleteItem(realIndex)
     -- 根据位置和状态获取引用 再在集合中找到对应引用删除 引用对应的表将被垃圾回收
     local status = BagManager.Instance:GetCateStatus()
-    if status == 0 then
+    if status == BagEnum.All then
         local tar = self.itemData[realIndex]
         table.remove(self.itemData, realIndex)
         if tar.type == 'equip' then
@@ -62,11 +55,11 @@ function PlayerDataMamager:DeleteItem(realIndex)
         else
             self:DeleteItemInTarTable(self.gemCategory, tar)
         end
-    elseif status == 1 then
+    elseif status == BagEnum.Equip then
         local tar = self.equipCategory[realIndex]
         table.remove(self.equipCategory, realIndex)
         self:DeleteItemInTarTable(self.itemData, tar)
-    elseif status == 2 then
+    elseif status == BagEnum.Item then
         local tar = self.itemCategory[realIndex]
         table.remove(self.itemCategory, realIndex)
         self:DeleteItemInTarTable(self.itemData, tar)

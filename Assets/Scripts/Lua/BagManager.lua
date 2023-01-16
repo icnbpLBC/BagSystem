@@ -65,7 +65,6 @@ function BagManager:UpdateLastItem(itemList, isAdd)
     end
 end
 
-
 -- 调整背包面板大小
 function BagManager:UpdateBagSize()
     -- 调整背包面板大小
@@ -80,7 +79,7 @@ function BagManager:InitBagItemDataByCateList(tarCateList)
 
             ItemContentManager.Instance.itemDatas[i][j]:InitPos({ ['x'] = (j - 1) * self.model.perfabW +
                 (j) * self.model.padX,
-                ['y'] = -(i - 1) * self.model.perfabH - (i) * self.model.padY},{row = i, column = j})
+                ['y'] = -(i - 1) * self.model.perfabH - (i) * self.model.padY }, { row = i, column = j })
 
 
             -- 二维索引映射一维
@@ -95,23 +94,24 @@ end
 -- 根据标签为背包物品做初始加载
 function BagManager:ShowCateData()
     -- 清除数据
-    ItemContentManager.Instance.selectedItem = nil
-    for i = 1, self.model.showRows do
-        for j = 1, self.model.showColumns do
-            ItemContentManager.Instance.itemDatas[i][j]:ChangeActive(false)
-        end
+    if (ItemContentManager.Instance.selectedItem ~= nil) then ItemContentManager.Instance.selectedItem:OnItemSelectedClick()
     end
+    -- for i = 1, self.model.showRows do
+    --     for j = 1, self.model.showColumns do
+    --         ItemContentManager.Instance.itemDatas[i][j]:ChangeActive(false)
+    --     end
+    -- end
     -- 从头开始显示
     self.model.leftIndex = 1
     self.model.rightIndex = 6
 
     -- 根据类别更新显示数据
     -- 左右滑动 故外循环为列 内循环为行
-    if self.model.categoryStatus == 0 then
+    if self.model.categoryStatus == BagEnum.categoryStatus.All then
         self:InitBagItemDataByCateList(PlayerDataMamager.Instance.itemData)
-    elseif self.model.categoryStatus == 1 then
+    elseif self.model.categoryStatus == BagEnum.categoryStatus.Equip then
         self:InitBagItemDataByCateList(PlayerDataMamager.Instance.equipCategory)
-    elseif self.model.categoryStatus == 2 then
+    elseif self.model.categoryStatus == BagEnum.categoryStatus.Item then
         self:InitBagItemDataByCateList(PlayerDataMamager.Instance.itemCategory)
     else
         self:InitBagItemDataByCateList(PlayerDataMamager.Instance.gemCategory)
@@ -129,7 +129,7 @@ end
 -- 根据状态和装填对应标签物品的集合的大小比较 判断是否需要对复用的格子加载资源
 function BagManager:TryNewLoad(info)
 
-    if self.model.categoryStatus == 0 then
+    if self.model.categoryStatus == BagEnum.categoryStatus.All then
         if info.index <= #PlayerDataMamager.Instance.itemData then
             ItemContentManager.Instance.itemDatas[info.showRow][info.showColumn]:Update(PlayerDataMamager.Instance.itemData
                 [info.index])
@@ -137,7 +137,7 @@ function BagManager:TryNewLoad(info)
             -- todo 无需装填时
             ItemContentManager.Instance.itemDatas[info.showRow][info.showColumn]:Update({ ["id"] = nil })
         end
-    elseif self.model.categoryStatus == 1 then
+    elseif self.model.categoryStatus == BagEnum.categoryStatus.Equip then
         if info.index <= #PlayerDataMamager.Instance.equipCategory then
             ItemContentManager.Instance.itemDatas[info.showRow][info.showColumn]:Update(PlayerDataMamager.Instance.equipCategory
                 [info.index])
@@ -145,7 +145,7 @@ function BagManager:TryNewLoad(info)
             -- todo 无需装填时
             ItemContentManager.Instance.itemDatas[info.showRow][info.showColumn]:Update({ ["id"] = nil })
         end
-    elseif self.model.categoryStatus == 2 then
+    elseif self.model.categoryStatus == BagEnum.categoryStatus.Item then
         if info.index <= #PlayerDataMamager.Instance.itemCategory then
             ItemContentManager.Instance.itemDatas[info.showRow][info.showColumn]:Update(PlayerDataMamager.Instance.itemCategory
                 [info.index])
@@ -221,13 +221,13 @@ function BagManager:AddItem()
     -- 基于分类来增加
     -- 随机选择当前分类中的某个id
     -- 1-6 装备 7 - 13 宝石  14 - 17 物品
-    if self.model.categoryStatus == 0 then
+    if self.model.categoryStatus == BagEnum.categoryStatus.All then
         self:RandomBuildItemToTable(1, 17, PlayerDataMamager.Instance.itemData)
-    elseif self.model.categoryStatus == 1 then
+    elseif self.model.categoryStatus == BagEnum.categoryStatus.Equip then
         self:RandomBuildItemToTable(1, 6, PlayerDataMamager.Instance.equipCategory)
-    elseif self.model.categoryStatus == 2 then
+    elseif self.model.categoryStatus == BagEnum.categoryStatus.Item then
         self:RandomBuildItemToTable(14, 17, PlayerDataMamager.Instance.itemCategory)
-    elseif self.model.categoryStatus == 3 then
+    elseif self.model.categoryStatus == BagEnum.categoryStatus.Gem then
         self:RandomBuildItemToTable(7, 13, PlayerDataMamager.Instance.gemCategory)
     end
 end
@@ -245,7 +245,7 @@ function BagManager:DeleteItem()
 
     -- 选中为取消
     ItemContentManager.Instance.selectedItem:OnItemSelectedClick()
-    
+
     -- 根据选中的实际行列来找出实际的一维位置
     -- 需要由抽象二维映射到实际一维
     local realIndex = (self.model.leftIndex + tar.logicColumn - 2) * self.model.showRows + tar.logicRow
@@ -313,4 +313,3 @@ end
 function BagManager:GetBagSpriteByName(name)
     return self.model.panel.spriteAtlasObj:GetSprite(name)
 end
-

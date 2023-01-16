@@ -1,16 +1,20 @@
- 
 AssetLoader = AssetLoader or BaseClass()
 
 function AssetLoader:__init()
   -- {abName, assetName, type, asset}
   self.assetList = nil
   self.event = nil
+  -- 默认为异步方式进行加载
+  self.loadMethod = LoaderEnum.loaderMethod.Async
 end
 
+function AssetLoader:SetLoadMethod(method)
+  self.loadMethod = method
+end
 
 -- 添加资源加载监听
 function AssetLoader:AddListener(cb)
-  if(self.event == nil) then
+  if (self.event == nil) then
     self.event = EventLib.New()
   end
   self.event:Add(cb)
@@ -20,22 +24,22 @@ end
 function AssetLoader:LoadAllAssets(assetList)
   self.assetList = assetList
   for key, data in pairs(self.assetList) do
-    local cb = function (asset)
+    local cb = function(asset)
       self:SetDataAsset(asset, data)
       -- 所有资源都加载完毕 才算加载事件完成
       local complete = true
       for i, data in pairs(self.assetList) do
-        if(data.asset == nil) then
+        if (data.asset == nil) then
           complete = false
         end
       end
-      if complete then
+      -- 事件发生
+      if complete and self.event ~= nil then
         self.event:Happen()
       end
-      
+
     end
-    -- 默认异步方式加载
-    CS.ABMgr.Instance:LoadRes(data.abName, data.assetName, data.type, cb, 0)
+    CS.ABMgr.Instance:LoadRes(data.abName, data.assetName, data.type, cb, self.loadMethod)
   end
 end
 
@@ -47,10 +51,10 @@ end
 
 function AssetLoader:GetEntity(abName, assetName, parent)
   for i, data in pairs(self.assetList) do
-    if(data.abName == abName and data.assetName == assetName) then
+    if (data.abName == abName and data.assetName == assetName) then
       -- 减少引用次数
       CS.ABMgr.Instance:DecreaseReferenceCount(data.abName, data.assetName)
-      if(data.type == typeof(CS.UnityEngine.GameObject)) then
+      if (data.type == typeof(CS.UnityEngine.GameObject)) then
         -- 局部变量销毁 返回拷贝后就销毁 -- todo 浅拷贝
         local obj = CS.UnityEngine.GameObject.Instantiate(data.asset, parent)
         -- 增加引用
