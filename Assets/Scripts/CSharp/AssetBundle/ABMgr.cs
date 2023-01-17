@@ -39,7 +39,6 @@ public class ABMgr : SingleAutoMono<ABMgr>
 
         // ¼ÓÔØÒÀÀµ°ü
         string[] dependencies = manifest.GetAllDependencies(abName);
-
         AssetBundle temp;
         foreach(string depend in dependencies)
         {
